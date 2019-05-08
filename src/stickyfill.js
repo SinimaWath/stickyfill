@@ -335,6 +335,10 @@ const Stickyfill = {
     Sticky,
 
     setScrollContainer (node) {
+        if (!node || !(node instanceof HTMLElement)) {
+            return null;
+        }
+
         scrollContainer = node;
     },
 
@@ -509,7 +513,6 @@ if (!seppuku) init();
 /*
  * 7. Expose Stickyfill
  */
-console.log(module);
 if (typeof module != 'undefined' && module.exports) {
     module.exports = Stickyfill;
 }
