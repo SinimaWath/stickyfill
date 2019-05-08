@@ -34,6 +34,19 @@ else {
 let isInitialized = false;
 
 let scrollContainer = window;
+Object.defineProperty(scrollContainer, 'scrollTop', {
+    get() {
+        return this.pageYOffset;
+    }
+});
+
+Object.defineProperty(scrollContainer, 'scrollLeft', {
+    get() {
+        return this.pageXOffset;
+    }
+});
+
+let offset = 0;
 
 // Check if Shadow Root constructor exists to make further checks simpler
 const shadowRootExists = typeof ShadowRoot !== 'undefined';
@@ -106,7 +119,7 @@ class Sticky {
         const nodeComputedStyle = getComputedStyle(node);
         const nodeComputedProps = {
             position: nodeComputedStyle.position,
-            top: nodeComputedStyle.top,
+            top: offset || nodeComputedStyle.top,
             display: nodeComputedStyle.display,
             marginTop: nodeComputedStyle.marginTop,
             marginBottom: nodeComputedStyle.marginBottom,
@@ -162,7 +175,7 @@ class Sticky {
         };
         this._styles = {
             position: originalPosition,
-            top: node.style.top,
+            top: offset || node.style.top,
             bottom: node.style.bottom,
             left: node.style.left,
             right: node.style.right,
@@ -249,17 +262,20 @@ class Sticky {
                 break;
 
             case 'middle':
+                console.log('TOP: ', offset || this._styles.top);
                 extend(this._node.style, {
                     position: 'fixed',
                     left: this._offsetToWindow.left + 'px',
                     right: this._offsetToWindow.right + 'px',
-                    top: this._styles.top,
+                    top: (offset || this._styles.top) + 'px',
                     bottom: 'auto',
                     width: 'auto',
                     marginLeft: 0,
                     marginRight: 0,
                     marginTop: 0
                 });
+
+                console.log('Node: ', this._node.style.top);
                 break;
 
             case 'end':
@@ -333,6 +349,10 @@ class Sticky {
 const Stickyfill = {
     stickies,
     Sticky,
+
+    setTopOffset(os) {
+        offset = os;
+    },
 
     setScrollContainer (node) {
         if (!node || !(node instanceof HTMLElement)) {

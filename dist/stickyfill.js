@@ -1,6 +1,6 @@
 /*!
   * Stickyfill – `position: sticky` polyfill
-  * v. 2.1.0-fix-scroll-container-4 | https://github.com/wilddeer/stickyfill
+  * v. 2.1.0-fix-scroll-container-5 | https://github.com/wilddeer/stickyfill
   * MIT License
   */
 
@@ -42,6 +42,19 @@
     var isInitialized = false;
     
     var scrollContainer = window;
+    Object.defineProperty(scrollContainer, 'scrollTop', {
+        get: function get() {
+            return this.pageYOffset;
+        }
+    });
+    
+    Object.defineProperty(scrollContainer, 'scrollLeft', {
+        get: function get() {
+            return this.pageXOffset;
+        }
+    });
+    
+    var offset = 0;
     
     // Check if Shadow Root constructor exists to make further checks simpler
     var shadowRootExists = typeof ShadowRoot !== 'undefined';
@@ -117,7 +130,7 @@
                 var nodeComputedStyle = getComputedStyle(node);
                 var nodeComputedProps = {
                     position: nodeComputedStyle.position,
-                    top: nodeComputedStyle.top,
+                    top: offset || nodeComputedStyle.top,
                     display: nodeComputedStyle.display,
                     marginTop: nodeComputedStyle.marginTop,
                     marginBottom: nodeComputedStyle.marginBottom,
@@ -168,7 +181,7 @@
                 };
                 this._styles = {
                     position: originalPosition,
-                    top: node.style.top,
+                    top: offset || node.style.top,
                     bottom: node.style.bottom,
                     left: node.style.left,
                     right: node.style.right,
@@ -251,17 +264,20 @@
                         break;
     
                     case 'middle':
+                        console.log('TOP: ', offset || this._styles.top);
                         extend(this._node.style, {
                             position: 'fixed',
                             left: this._offsetToWindow.left + 'px',
                             right: this._offsetToWindow.right + 'px',
-                            top: this._styles.top,
+                            top: (offset || this._styles.top) + 'px',
                             bottom: 'auto',
                             width: 'auto',
                             marginLeft: 0,
                             marginRight: 0,
                             marginTop: 0
                         });
+    
+                        console.log('Node: ', this._node.style.top);
                         break;
     
                     case 'end':
@@ -346,6 +362,9 @@
         stickies: stickies,
         Sticky: Sticky,
     
+        setTopOffset: function setTopOffset(os) {
+            offset = os;
+        },
         setScrollContainer: function setScrollContainer(node) {
             if (!node || !(node instanceof HTMLElement)) {
                 return null;

@@ -31,7 +31,7 @@
         }
 
         .sticky {
-            top: 100px;
+            top: 0;
             z-index: 2;
             position: sticky;
             height: 50px;
@@ -58,25 +58,14 @@
         </div>
     </div>
 
+    <script src="../dist/stickyfill.js"></script>
     <script>
-        require()
         const sticky = document.querySelector('.sticky');
         const overlay = document.querySelector('.overlay');
         const list = document.querySelector('.list');
 
-        Object.defineProperty(overlay, 'pageYOffset', {
-        	get() {
-                return overlay.scrollTop;
-	        }
-        });
-
-        Object.defineProperty(overlay, 'pageXOffset', {
-	        get() {
-		        return this.scrollLeft;
-	        }
-        });
-
         Stickyfill.setScrollContainer(overlay);
+        Stickyfill.setTopOffset(100);
         Stickyfill.forceSticky();
         Stickyfill.add(sticky);
 
