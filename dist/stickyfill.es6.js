@@ -39,6 +39,8 @@ else {
  */
 let isInitialized = false;
 
+let scrollContainer = window;
+
 // Check if Shadow Root constructor exists to make further checks simpler
 const shadowRootExists = typeof ShadowRoot !== 'undefined';
 
@@ -177,9 +179,10 @@ class Sticky {
         };
 
         const nodeTopValue = parseNumeric(nodeComputedProps.top);
+        console.log(nodeWinOffset.top, scrollContainer.pageYOffset, nodeTopValue);
         this._limits = {
-            start: nodeWinOffset.top + window.pageYOffset - nodeTopValue,
-            end: parentWinOffset.top + window.pageYOffset + parentNode.offsetHeight -
+            start: nodeWinOffset.top + scrollContainer.pageYOffset - nodeTopValue,
+            end: parentWinOffset.top + scrollContainer.pageYOffset + parentNode.offsetHeight -
                 parseNumeric(parentComputedStyle.borderBottomWidth) - node.offsetHeight -
                 nodeTopValue - parseNumeric(nodeComputedProps.marginBottom)
         };
@@ -231,6 +234,7 @@ class Sticky {
     _recalcPosition () {
         if (!this._active || this._removed) return;
 
+        console.log('Limits: ', this._limits);
         const stickyMode = scroll.top <= this._limits.start? 'start': scroll.top >= this._limits.end? 'end': 'middle';
 
         if (this._stickyMode == stickyMode) return;
@@ -336,30 +340,15 @@ const Stickyfill = {
     stickies,
     Sticky,
 
+    setScrollContainer (node) {
+        scrollContainer = node;
+    },
+
     forceSticky () {
         seppuku = false;
         init();
 
         this.refreshAll();
-    },
-
-    addOne (node) {
-        // Check whether it’s a node
-        if (!(node instanceof HTMLElement)) {
-            // Maybe it’s a node list of some sort?
-            // Take first node from the list then
-            if (node.length && node[0]) node = node[0];
-            else return;
-        }
-
-        // Check if Stickyfill is already applied to the node
-        // and return existing sticky
-        for (var i = 0; i < stickies.length; i++) {
-            if (stickies[i]._node === node) return stickies[i];
-        }
-
-        // Create and return new sticky
-        return new Sticky(node);
     },
 
     add (nodeList) {
@@ -456,15 +445,18 @@ function init () {
 
     // Watch for scroll position changes and trigger recalc/refresh if needed
     function checkScroll () {
-        if (window.pageXOffset != scroll.left) {
-            scroll.top = window.pageYOffset;
-            scroll.left = window.pageXOffset;
+        console.log('Window Y offset: ', scrollContainer.pageYOffset);
+        console.log('Window X offset: ', scrollContainer.pageXOffset);
+
+        if (scrollContainer.pageXOffset != scroll.left) {
+            scroll.top = scrollContainer.pageYOffset;
+            scroll.left = scrollContainer.pageXOffset;
 
             Stickyfill.refreshAll();
         }
-        else if (window.pageYOffset != scroll.top) {
-            scroll.top = window.pageYOffset;
-            scroll.left = window.pageXOffset;
+        else if (scrollContainer.pageYOffset != scroll.top) {
+            scroll.top = scrollContainer.pageYOffset;
+            scroll.left = scrollContainer.pageXOffset;
 
             // recalc position for all stickies
             stickies.forEach(sticky => sticky._recalcPosition());
@@ -472,7 +464,7 @@ function init () {
     }
 
     checkScroll();
-    window.addEventListener('scroll', checkScroll);
+    scrollContainer.addEventListener('scroll', checkScroll, true);
 
     // Watch for window resizes and device orientation changes and trigger refresh
     window.addEventListener('resize', Stickyfill.refreshAll);
@@ -520,10 +512,10 @@ function init () {
 
 if (!seppuku) init();
 
-
 /*
  * 7. Expose Stickyfill
  */
+console.log(module);
 if (typeof module != 'undefined' && module.exports) {
     module.exports = Stickyfill;
 }

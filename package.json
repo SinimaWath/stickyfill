@@ -1,5 +1,5 @@
 {
-  "name": "stickyfilljs",
+  "name": "stickyfilljs-fork",
   "version": "2.1.0",
   "description": "Polyfill for CSS `position: sticky`",
   "keywords": [
