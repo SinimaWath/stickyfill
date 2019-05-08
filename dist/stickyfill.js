@@ -1,6 +1,6 @@
 /*!
   * Stickyfill – `position: sticky` polyfill
-  * v. 2.1.0 | https://github.com/wilddeer/stickyfill
+  * v. 2.1.0-fix-scroll-container-4 | https://github.com/wilddeer/stickyfill
   * MIT License
   */
 
@@ -179,10 +179,10 @@
                 };
     
                 var nodeTopValue = parseNumeric(nodeComputedProps.top);
-                console.log(nodeWinOffset.top, scrollContainer.pageYOffset, nodeTopValue);
+                console.log(nodeWinOffset.top, scrollContainer.scrollTop, nodeTopValue);
                 this._limits = {
-                    start: nodeWinOffset.top + scrollContainer.pageYOffset - nodeTopValue,
-                    end: parentWinOffset.top + scrollContainer.pageYOffset + parentNode.offsetHeight - parseNumeric(parentComputedStyle.borderBottomWidth) - node.offsetHeight - nodeTopValue - parseNumeric(nodeComputedProps.marginBottom)
+                    start: nodeWinOffset.top + scrollContainer.scrollTop - nodeTopValue,
+                    end: parentWinOffset.top + scrollContainer.scrollTop + parentNode.offsetHeight - parseNumeric(parentComputedStyle.borderBottomWidth) - node.offsetHeight - nodeTopValue - parseNumeric(nodeComputedProps.marginBottom)
                 };
     
                 /*
@@ -347,6 +347,10 @@
         Sticky: Sticky,
     
         setScrollContainer: function setScrollContainer(node) {
+            if (!node || !(node instanceof HTMLElement)) {
+                return null;
+            }
+    
             scrollContainer = node;
         },
         forceSticky: function forceSticky() {
@@ -458,17 +462,17 @@
     
         // Watch for scroll position changes and trigger recalc/refresh if needed
         function checkScroll() {
-            console.log('Window Y offset: ', scrollContainer.pageYOffset);
-            console.log('Window X offset: ', scrollContainer.pageXOffset);
+            console.log('Window Y offset: ', scrollContainer.scrollTop);
+            console.log('Window X offset: ', scrollContainer.scrollLeft);
     
-            if (scrollContainer.pageXOffset != scroll.left) {
-                scroll.top = scrollContainer.pageYOffset;
-                scroll.left = scrollContainer.pageXOffset;
+            if (scrollContainer.scrollLeft !== scroll.left) {
+                scroll.top = scrollContainer.scrollTop;
+                scroll.left = scrollContainer.scrollLeft;
     
                 Stickyfill.refreshAll();
-            } else if (scrollContainer.pageYOffset != scroll.top) {
-                scroll.top = scrollContainer.pageYOffset;
-                scroll.left = scrollContainer.pageXOffset;
+            } else if (scrollContainer.pageYOffset !== scroll.top) {
+                scroll.top = scrollContainer.scrollTop;
+                scroll.left = scrollContainer.scrollLeft;
     
                 // recalc position for all stickies
                 stickies.forEach(function (sticky) {
@@ -528,7 +532,6 @@
     /*
      * 7. Expose Stickyfill
      */
-    console.log(module);
     if (typeof module != 'undefined' && module.exports) {
         module.exports = Stickyfill;
     } else if (isWindowDefined) {
