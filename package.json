@@ -1,6 +1,6 @@
 {
   "name": "stickyfilljs-fork",
-  "version": "2.1.0-fix-scroll-container-6",
+  "version": "2.1.0-fix-scroll-container-7",
   "description": "Polyfill for CSS `position: sticky`",
   "keywords": [
     "sticky",
