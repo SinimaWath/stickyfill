@@ -14,5 +14,7 @@ export function removeAll(): void
 
 export function setScrollContainer(element: HTMLElement): void;
 
+export function forceSticky(): void;
+
 export const stickies: Sticky[];
 
