@@ -44,7 +44,7 @@ Object.defineProperty(scrollContainer, 'scrollLeft', {
     }
 });
 
-let offset = 0;
+let scrollContainerOffset = 0;
 
 // Check if Shadow Root constructor exists to make further checks simpler
 const shadowRootExists = typeof ShadowRoot !== 'undefined';
@@ -68,6 +68,15 @@ function extend (targetObj, sourceObject) {
             targetObj[key] = sourceObject[key];
         }
     }
+}
+
+function getElementAbsoluteTopOffset (el) {
+    if (!el || !el.getBoundingClientRect) {
+        return 0;
+    }
+
+    return Math.ceil(el.getBoundingClientRect().y);
+
 }
 
 function parseNumeric (val) {
@@ -117,7 +126,7 @@ class Sticky {
         const nodeComputedStyle = getComputedStyle(node);
         const nodeComputedProps = {
             position: nodeComputedStyle.position,
-            top: offset || nodeComputedStyle.top,
+            top: nodeComputedStyle.top,
             display: nodeComputedStyle.display,
             marginTop: nodeComputedStyle.marginTop,
             marginBottom: nodeComputedStyle.marginBottom,
@@ -171,9 +180,10 @@ class Sticky {
             left: nodeWinOffset.left - parentWinOffset.left - parseNumeric(parentComputedStyle.borderLeftWidth),
             right: -nodeWinOffset.right + parentWinOffset.right - parseNumeric(parentComputedStyle.borderRightWidth)
         };
+
         this._styles = {
             position: originalPosition,
-            top: offset || node.style.top,
+            top: node.style.top,
             bottom: node.style.bottom,
             left: node.style.left,
             right: node.style.right,
@@ -183,7 +193,7 @@ class Sticky {
             marginRight: node.style.marginRight
         };
 
-        const nodeTopValue = parseNumeric(nodeComputedProps.top);
+        const nodeTopValue = parseNumeric(nodeComputedProps.top) + scrollContainerOffset;
         console.log(nodeWinOffset.top, scrollContainer.scrollTop, nodeTopValue);
         this._limits = {
             start: nodeWinOffset.top + scrollContainer.scrollTop - nodeTopValue,
@@ -260,12 +270,12 @@ class Sticky {
                 break;
 
             case 'middle':
-                console.log('TOP: ', offset || this._styles.top);
+                console.log('TOP: ', scrollContainerOffset || this._styles.top);
                 extend(this._node.style, {
                     position: 'fixed',
                     left: this._offsetToWindow.left + 'px',
                     right: this._offsetToWindow.right + 'px',
-                    top: (offset || this._styles.top) + 'px',
+                    top: parseNumeric(this._styles.top) + scrollContainerOffset + 'px',
                     bottom: 'auto',
                     width: 'auto',
                     marginLeft: 0,
@@ -348,16 +358,20 @@ const Stickyfill = {
     stickies,
     Sticky,
 
-    setTopOffset(os) {
-        offset = os;
-    },
-
     setScrollContainer (node) {
         if (!node || !(node instanceof HTMLElement)) {
-            return null;
+            return;
+        }
+
+        if (node.scrollTop === void 0 || node.scrollLeft === void 0) {
+            return;
         }
 
         scrollContainer = node;
+
+        scrollContainerOffset = getElementAbsoluteTopOffset(node);
+
+        console.log(scrollContainerOffset);
     },
 
     forceSticky () {
@@ -452,7 +466,7 @@ function init () {
 
             Stickyfill.refreshAll();
         }
-        else if (scrollContainer.pageYOffset !== scroll.top) {
+        else if (scrollContainer.scrollTop !== scroll.top) {
             scroll.top = scrollContainer.scrollTop;
             scroll.left = scrollContainer.scrollLeft;
 
