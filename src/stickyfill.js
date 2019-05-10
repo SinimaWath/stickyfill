@@ -408,24 +408,6 @@ const Stickyfill = {
         stickies.forEach(sticky => sticky.refresh());
     },
 
-    removeOne (node) {
-        // Check whether it’s a node
-        if (!(node instanceof HTMLElement)) {
-            // Maybe it’s a node list of some sort?
-            // Take first node from the list then
-            if (node.length && node[0]) node = node[0];
-            else return;
-        }
-
-        // Remove the stickies bound to the nodes in the list
-        stickies.some(sticky => {
-            if (sticky._node === node) {
-                sticky.remove();
-                return true;
-            }
-        });
-    },
-
     remove (nodeList) {
         // If it’s a node make an array of one node
         if (nodeList instanceof HTMLElement) nodeList = [nodeList];
@@ -530,12 +512,4 @@ function init () {
 
 if (!seppuku) init();
 
-/*
- * 7. Expose Stickyfill
- */
-if (typeof module != 'undefined' && module.exports) {
-    module.exports = Stickyfill;
-}
-else if (isWindowDefined) {
-    window.Stickyfill = Stickyfill;
-}
+export default Stickyfill;
