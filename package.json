@@ -20,7 +20,8 @@
   "types": "types/index.d.ts",
   "scripts": {
     "build": "rollup -c rollup.config.js",
-    "test-build": "npm run build && rollup -c test/rollup.config.js"
+    "test-build": "npm run build && rollup -c test/rollup.config.js",
+    "prepublish": "npm run build"
   },
   "devDependencies": {
     "rollup": "^1.11.3"
