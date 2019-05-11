@@ -1,3 +1,5 @@
+'use strict';
+
 /*
  * 1. Check if the browser supports `position: sticky` natively or is too old to run the polyfill.
  *    If either of these is the case set `seppuku` flag. It will be checked later to disable key features
@@ -524,4 +526,4 @@ function init () {
 
 if (!seppuku) init();
 
-export default Stickyfill;
+module.exports = Stickyfill;
