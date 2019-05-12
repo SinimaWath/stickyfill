@@ -77,7 +77,7 @@ function getElementAbsoluteTopOffset (el) {
         return 0;
     }
 
-    return Math.ceil(el.getBoundingClientRect().y);
+    return Math.ceil(el.getBoundingClientRect().top);
 
 }
 
